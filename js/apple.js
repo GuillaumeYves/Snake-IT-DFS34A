@@ -22,10 +22,13 @@ export function resetApples() {
 }
 
 export function spawnApple() {
-  // On liste toutes les cases occupées par le serpent pour ne pas y spawner une pomme
-  const occupiedCells = new Set(
-    state.snakeParts.map((part) => `${part.style.left},${part.style.top}`),
-  );
+  // On liste toutes les cases occupées : serpent + bonus déjà présents sur le plateau
+  const occupiedCells = new Set([
+    ...state.snakeParts.map((part) => `${part.style.left},${part.style.top}`),
+    ...Array.from(document.querySelectorAll(".bonus-pickup")).map(
+      (el) => `${el.style.left},${el.style.top}`,
+    ),
+  ]);
 
   // On construit la liste des cases libres en évitant le bord (SPAWN_MARGIN)
   const freeCells = [];
@@ -66,7 +69,7 @@ export function checkEatApple() {
 
     if (headIsOnApple) {
       const basePoints = parseInt(apple.dataset.value);
-      // Si un multiplicateur est actif (X2, X3, X5)
+      // Si un multiplicateur est actif (X2, X3, X5), on l'applique
       const points = basePoints * state.activeMultiplier;
       const isGolden = apple.classList.contains("golden-apple");
 
@@ -81,7 +84,7 @@ export function checkEatApple() {
         playAppleSound();
       }
 
-      // Le multiplicateur ne s'applique qu'une seule fois donc on le remet à 1
+      // Le multiplicateur ne s'applique qu'une seule fois, on le remet à 1
       if (state.activeMultiplier > 1) {
         state.activeMultiplier = 1;
         clearMultiplierBadge();
